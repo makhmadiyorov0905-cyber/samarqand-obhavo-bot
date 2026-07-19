@@ -1,0 +1,29 @@
+name: Samarqand Weather Bot
+
+on:
+  schedule:
+    - cron: "0 2 * * *" # Har kuni UTC 02:00 = O'zbekiston vaqti 07:00
+  workflow_dispatch:
+
+jobs:
+  send-weather:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Repositoryni yuklab olish
+        uses: actions/checkout@v4
+
+      - name: Python o'rnatish
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Kutubxonalarni o'rnatish
+        run: pip install -r requirements.txt
+
+      - name: Botni ishga tushirish
+        env:
+          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+          WEATHER_API_KEY: ${{ secrets.WEATHER_API_KEY }}
+          CHAT_ID: ${{ secrets.CHAT_ID }}
+        run: python bot.py
