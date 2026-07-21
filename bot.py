@@ -21,13 +21,13 @@ feels = data["main"]["feels_like"]
 humidity = data["main"]["humidity"]
 weather = data["weather"][0]["description"]
 
-text = (
-    "🌤 Samarqand bugungi ob-havosi\n\n"
-    f"🌡 Harorat: {temp}°C\n"
-    f"🤗 His qilinishi: {feels}°C\n"
-    f"💧 Namlik: {humidity}%\n"
-    f"☁️ Holat: {weather}"
-)
+text = f"""🌤 Samarqand bugungi ob-havosi
+
+🌡 Harorat: {temp}°C
+🤗 His qilinishi: {feels}°C
+💧 Namlik: {humidity}%
+☁️ Holat: {weather}
+"""
 
 requests.post(
     f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
