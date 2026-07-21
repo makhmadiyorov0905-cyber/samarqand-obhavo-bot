@@ -1,32 +1,40 @@
 import os
-from telegram import Update
-from telegram.ext import Application, CommandHandler, ContextTypes
+import requests
 
-TOKEN = os.getenv("BOT_TOKEN")
+BOT_TOKEN = os.getenv("BOT_TOKEN")
+CHAT_ID = os.getenv("CHAT_ID")
+WEATHER_API_KEY = os.getenv("WEATHER_API_KEY")
 
-ABOUT_TEXT = (
-    "🌤 Bu bot har kuni ertalab soat 07:00 da "
-    "Samarqand ob-havosini taqdim etadi."
+url = (
+    f"https://api.openweathermap.org/data/2.5/weather"
+    f"?q=Samarkand&appid={WEATHER_API_KEY}&units=metric&lang=uz"
 )
 
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text(
-        "✅ Bot ishga tushirildi!\n\n"
-        "🌤 Endi siz har kuni ertalab soat 07:00 da Samarqand ob-havosini avtomatik qabul qilasiz."
-    )
+response = requests.get(url)
+data = response.json()
 
-async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text(ABOUT_TEXT)
+if data.get("cod") != 200:
+    raise Exception(f"API xatosi: {data}")
 
-def main():
-    app = Application.builder().token(TOKEN).build()
+temp = data["main"]["temp"]
+feels = data["main"]["feels_like"]
+humidity = data["main"]["humidity"]
+weather = data["weather"][0]["description"]
 
-    app.add_handler(CommandHandler("start", start))
-    app.add_handler(CommandHandler("help", help_command))
+text = (
+    "🌤 Samarqand bugungi ob-havosi\n\n"
+    f"🌡 Harorat: {temp}°C\n"
+    f"🤗 His qilinishi: {feels}°C\n"
+    f"💧 Namlik: {humidity}%\n"
+    f"☁️ Holat: {weather}"
+)
 
-    print("Bot ishga tushdi...")
+requests.post(
+    f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
+    data={
+        "chat_id": CHAT_ID,
+        "text": text
+    }
+)
 
-    app.run_polling()
-
-if __name__ == "__main__":
-    main()
+print("Ob-havo muvaffaqiyatli yuborildi.")
